@@ -13,8 +13,8 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Display', sans-serif;
-            background: #ffffff;
-            color: #1a1a1a;
+            background: #0a0a0a;
+            color: #e5e5e5;
             line-height: 1.6;
         }
 
@@ -22,47 +22,12 @@
             font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Courier New', monospace;
         }
 
-        /* Navigation Menu */
-        nav {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .nav-logo {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #000000;
-            text-decoration: none;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 24px;
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: #666666;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 400;
-            transition: color 0.2s ease;
-        }
-
-        .nav-links a:hover {
-            color: #000000;
-        }
-
         /* Hero Section */
         .hero {
             display: flex;
             flex-direction: column;
             padding: 60px 20px 40px;
+            background: #0a0a0a;
         }
 
         .hero-header {
@@ -75,32 +40,20 @@
             font-weight: 700;
             letter-spacing: -0.03em;
             margin-bottom: 20px;
-            color: #000000;
+            color: #ffffff;
         }
 
         .subtitle {
             font-size: 1.5rem;
             font-weight: 500;
-            color: #1a1a1a;
+            color: #ffffff;
             margin-bottom: 10px;
         }
 
         .subsubtitle {
             font-size: 1rem;
-            color: #666666;
+            color: #a0a0a0;
             font-weight: 400;
-        }
-
-        .authors {
-            margin-top: 30px;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: #555;
-        }
-
-        .equal-contribution {
-            font-size: 0.8em;
-            vertical-align: super;
         }
 
         /* Cards Section */
@@ -118,17 +71,17 @@
         }
 
         .card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
+            background: #1a1a1a;
+            border: 1px solid #333333;
             padding: 40px 32px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .card-title {
             font-size: 1.3rem;
             font-weight: 600;
             margin-bottom: 16px;
-            color: #000;
+            color: #ffffff;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -137,7 +90,7 @@
         .card-content {
             font-size: 0.95rem;
             line-height: 1.6;
-            color: #555;
+            color: #b0b0b0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
@@ -145,6 +98,7 @@
             width: 28px;
             height: 28px;
             flex-shrink: 0;
+            color: #FF6B35;
         }
 
         .card-icon svg {
@@ -172,15 +126,29 @@
         .section-title {
             font-size: 2rem;
             font-weight: 700;
-            color: #000000;
+            color: #ffffff;
             margin-bottom: 30px;
             text-align: center;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background: #333333;
         }
 
         .leaderboard-wrapper {
-            background: #ffffff;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            background: #1a1a1a;
+            border: 1px solid #333333;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             overflow: hidden;
         }
 
@@ -190,8 +158,9 @@
         }
 
         thead {
-            background: #000000;
+            background: #1a1a1a;
             color: #ffffff;
+            border-bottom: 1px solid #333333;
         }
 
         th {
@@ -204,7 +173,7 @@
         }
 
         tbody tr {
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid #2a2a2a;
         }
 
         tbody tr:last-child {
@@ -212,12 +181,13 @@
         }
 
         tbody tr:hover {
-            background: #fafafa;
+            background: #252525;
         }
 
         td {
             padding: 14px 20px;
             font-size: 0.95rem;
+            color: #e5e5e5;
         }
 
         .rank-cell {
@@ -232,14 +202,15 @@
 
         .elo-cell {
             font-weight: 600;
-            color: #666666;
+            color: #a0a0a0;
             text-align: right;
             width: 30%;
         }
 
         /* Top 3 highlighting */
         .top-three .rank-cell {
-            color: #000000;
+            color: #ffffff;
+            font-weight: 700;
         }
 
         /* Findings Section */
@@ -250,9 +221,23 @@
         .findings-title {
             font-size: 2rem;
             font-weight: 700;
-            color: #000000;
+            color: #ffffff;
             margin-bottom: 40px;
             text-align: center;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .findings-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background: #333333;
         }
 
         .findings-grid {
@@ -262,17 +247,17 @@
         }
 
         .finding-card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
+            background: #1a1a1a;
+            border: 1px solid #333333;
             padding: 40px 32px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .finding-title {
             font-size: 1.3rem;
             font-weight: 600;
             margin-bottom: 16px;
-            color: #000;
+            color: #ffffff;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -281,7 +266,7 @@
         .finding-content {
             font-size: 0.95rem;
             line-height: 1.6;
-            color: #555;
+            color: #b0b0b0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
@@ -289,6 +274,7 @@
             width: 28px;
             height: 28px;
             flex-shrink: 0;
+            color: #FF6B35;
         }
 
         .finding-icon svg {
@@ -308,25 +294,27 @@
             font-size: 1.4rem;
             font-weight: 600;
             line-height: 1.6;
-            color: #000000;
+            color: #ffffff;
             margin-bottom: 32px;
+            padding-left: 20px;
+            border-left: 4px solid #333333;
         }
 
         .story-paragraph {
             margin-bottom: 24px;
             font-size: 1rem;
             line-height: 1.8;
-            color: #2a2a2a;
+            color: #d0d0d0;
         }
 
         .story-highlight {
-            background: #ffffff;
-            border: 1px solid #e0e0e0;
+            background: #1a1a1a;
+            border: 1px solid #333333;
             padding: 32px 36px;
             margin: 32px 0;
             font-size: 1.05rem;
             line-height: 1.8;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .story-highlight .story-paragraph {
@@ -348,24 +336,24 @@
         }
 
         .number-card {
-            background: #ffffff;
-            border: 1px solid #e0e0e0;
+            background: #1a1a1a;
+            border: 1px solid #333333;
             padding: 40px 32px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .big-number {
             font-size: 3.5rem;
             font-weight: 700;
-            color: #000000;
+            color: #FF6B35;
             margin-bottom: 12px;
             line-height: 1;
         }
 
         .number-description {
             font-size: 0.95rem;
-            color: #666666;
+            color: #a0a0a0;
             line-height: 1.6;
         }
 
@@ -379,7 +367,17 @@
             font-size: 1rem;
             line-height: 1.8;
             margin-bottom: 16px;
-            color: #2a2a2a;
+            color: #d0d0d0;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .findings-list-item::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #666666;
+            font-weight: 700;
         }
 
         /* CTA Section */
@@ -392,7 +390,7 @@
         .cta-text {
             font-size: 1rem;
             line-height: 1.8;
-            color: #2a2a2a;
+            color: #d0d0d0;
             margin-bottom: 32px;
         }
 
@@ -405,10 +403,10 @@
         .cta-button {
             display: inline-block;
             padding: 14px 28px;
-            background: #ffffff;
-            color: #000000;
+            background: transparent;
+            color: #ffffff;
             text-decoration: none;
-            border: 2px solid #000000;
+            border: 2px solid #ffffff;
             font-weight: 600;
             font-size: 0.9rem;
             transition: all 0.2s ease;
@@ -417,19 +415,19 @@
         }
 
         .cta-button:hover {
-            background: #000000;
-            color: #ffffff;
+            background: #ffffff;
+            color: #0a0a0a;
         }
 
         .cta-button.primary {
-            background: #000000;
-            color: #ffffff;
-            border-color: #000000;
+            background: #ffffff;
+            color: #0a0a0a;
+            border-color: #ffffff;
         }
 
         .cta-button.primary:hover {
-            background: #333333;
-            border-color: #333333;
+            background: #e5e5e5;
+            border-color: #e5e5e5;
         }
 
         /* Responsive */
@@ -437,10 +435,6 @@
             .combined-section {
                 grid-template-columns: 1fr;
                 gap: 40px;
-            }
-
-            .nav-links {
-                gap: 16px;
             }
         }
 
@@ -460,50 +454,16 @@
             .big-number {
                 font-size: 2rem;
             }
-
-            .nav-links {
-                flex-wrap: wrap;
-                gap: 12px;
-                font-size: 0.85rem;
-            }
-
-            .authors {
-                font-size: 0.8rem;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation Menu -->
-    <nav>
-        <a href="#" class="nav-logo mono">CodeClash</a>
-        <ul class="nav-links">
-            <li><a href="#about">About</a></li>
-            <li><a href="#arenas">Arenas</a></li>
-            <li><a href="#docs">Docs</a></li>
-            <li><a href="#insights">Insights</a></li>
-            <li><a href="#team">Team</a></li>
-        </ul>
-    </nav>
-
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-header">
             <h1 class="title mono">CodeClash</h1>
             <p class="subtitle">Your LM is a good junior developer. But can it own the project?</p>
             <p class="subsubtitle">Evaluating LMs as goal-driven software developers.</p>
-            
-            <div class="authors">
-                John Yang<span class="equal-contribution">*</span><sup>1</sup>,
-                Kilian Lieret<span class="equal-contribution">*</span><sup>2</sup>,
-                Joyce Yang<sup>3</sup>,
-                Carlos E. Jimenez<sup>2</sup>,
-                Ofir Press<sup>2</sup>,
-                Ludwig Schmidt<sup>1</sup>,
-                Diyi Yang<sup>1</sup>
-                <br>
-                <sup>1</sup>Stanford University &nbsp; <sup>2</sup>Princeton University &nbsp; <sup>3</sup>Cornell University
-            </div>
         </div>
 
         <!-- Key Concept Cards -->
@@ -608,7 +568,7 @@
                         </tr>
                         <tr>
                             <td class="rank-cell">7</td>
-                            <td class="model-cell">Grok Code Fast</td>
+                            <td class="rank-cell">Grok Code Fast</td>
                             <td class="elo-cell mono">1005.8</td>
                         </tr>
                         <tr>

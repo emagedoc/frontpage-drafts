@@ -5,475 +5,363 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CodeClash - Evaluating LMs as Goal-Driven Developers</title>
     <style>
+        /* Hacker/developer classic theme with light/dark support */
+        :root {
+            --bg: #ffffff;
+            --fg: #0b0b0b;
+            --muted: #5a5f66;
+            --border: #e5e7eb;
+            --bg-elevated: #fafafa;
+            --accent: #00cc66;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0b0c0c;
+                --fg: #e7e9ea;
+                --muted: #9aa2a9;
+                --border: #1f2328;
+                --bg-elevated: #121416;
+                --accent: #00ff88;
+            }
+        }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Display', sans-serif;
-            background: #ffffff;
-            color: #1a1a1a;
+            background: var(--bg);
+            color: var(--fg);
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
         }
-
-        code, .mono {
-            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Courier New', monospace;
+        ::selection {
+            background: color-mix(in oklab, var(--accent) 30%, transparent);
         }
-
-        /* Navigation Menu */
+        a {
+            color: var(--fg);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+        }
+        a:hover {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+        /* Navigation */
         nav {
-            max-width: 1200px;
-            margin: 0 auto;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 20px;
-            border-bottom: 1px solid #e0e0e0;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 10;
         }
-
         .nav-logo {
-            font-size: 1.2rem;
             font-weight: 700;
-            color: #000000;
-            text-decoration: none;
+            letter-spacing: 0.02em;
+            color: var(--fg);
         }
-
         .nav-links {
-            display: flex;
-            gap: 24px;
             list-style: none;
-        }
-
-        .nav-links a {
-            color: #666666;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 400;
-            transition: color 0.2s ease;
-        }
-
-        .nav-links a:hover {
-            color: #000000;
-        }
-
-        /* Hero Section */
-        .hero {
             display: flex;
-            flex-direction: column;
-            padding: 60px 20px 40px;
+            gap: 20px;
         }
-
+        .nav-links a {
+            color: var(--fg);
+            opacity: 0.9;
+        }
+        .nav-links a:hover {
+            opacity: 1;
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        /* Hero */
+        .hero {
+            padding: 56px 20px 40px;
+            border-bottom: 1px solid var(--border);
+        }
         .hero-header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .title {
-            font-size: 4rem;
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            margin-bottom: 20px;
-            color: #000000;
-        }
-
-        .subtitle {
-            font-size: 1.5rem;
-            font-weight: 500;
-            color: #1a1a1a;
-            margin-bottom: 10px;
-        }
-
-        .subsubtitle {
-            font-size: 1rem;
-            color: #666666;
-            font-weight: 400;
-        }
-
-        .authors {
-            margin-top: 30px;
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: #555;
-        }
-
-        .equal-contribution {
-            font-size: 0.8em;
-            vertical-align: super;
-        }
-
-        /* Cards Section */
-        .cards-container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 0 20px;
-            margin-bottom: 50px;
+            text-align: center;
         }
-
+        .title {
+            font-size: clamp(2.4rem, 6vw, 4rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #00ff88, #00ff88 20%, #00cc66 80%, #009944);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: var(--fg);
+            margin-bottom: 6px;
+        }
+        .subsubtitle {
+            font-size: 0.95rem;
+            color: var(--fg);
+            margin-bottom: 24px;
+        }
+        .authors {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+        .authors sup {
+            font-size: 0.75em;
+        }
+        .equal-contribution {
+            font-size: 0.9em;
+        }
+        /* Cards */
+        .cards-container {
+            max-width: 1100px;
+            margin: 32px auto 0;
+            padding: 0 12px;
+        }
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-        }
-
-        .card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            padding: 40px 32px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-
-        .card-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: #000;
-            display: flex;
-            align-items: center;
             gap: 12px;
         }
-
+        .card {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 28px 24px;
+            transition: border-color 0.15s ease, transform 0.15s ease;
+        }
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .card-icon {
+            width: 22px;
+            height: 22px;
+            color: var(--accent);
+        }
         .card-content {
             font-size: 0.95rem;
-            line-height: 1.6;
-            color: #555;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--muted);
         }
-
-        .card-icon {
-            width: 28px;
-            height: 28px;
-            flex-shrink: 0;
-        }
-
-        .card-icon svg {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* Combined Leaderboard + Findings Section */
+        /* Combined Leaderboard + Findings */
         .combined-section {
-            max-width: 1200px;
-            margin: 0 auto 60px;
-            padding: 0 20px;
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 12px;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            align-items: start;
+            gap: 24px;
         }
-
-        /* Leaderboard Section */
-        .leaderboard-section {
-            margin: 0;
+        .section-title, .findings-title {
+            text-align: left;
+            font-weight: 800;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
         }
-
-        .section-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #000000;
-            margin-bottom: 30px;
-            text-align: center;
+        .leaderboard-wrapper, .finding-card, .number-card, .story-highlight {
+            background: transparent;
+            border: 1px solid var(--border);
         }
-
-        .leaderboard-wrapper {
-            background: #ffffff;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            overflow: hidden;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
-        }
-
-        thead {
-            background: #000000;
-            color: #ffffff;
-        }
-
-        th {
-            padding: 16px 20px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.85rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        tbody tr {
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        tbody tr:last-child {
-            border-bottom: none;
-        }
-
-        tbody tr:hover {
-            background: #fafafa;
-        }
-
-        td {
-            padding: 14px 20px;
             font-size: 0.95rem;
         }
-
-        .rank-cell {
-            font-weight: 700;
-            width: 80px;
+        thead th {
+            text-align: left;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--muted);
+            letter-spacing: 0.06em;
         }
-
-        .model-cell {
-            font-weight: 500;
-            width: 40%;
+        tbody td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
         }
-
-        .elo-cell {
-            font-weight: 600;
-            color: #666666;
-            text-align: right;
-            width: 30%;
+        tbody tr:hover {
+            background: color-mix(in oklab, var(--accent) 6%, var(--bg));
         }
-
-        /* Top 3 highlighting */
-        .top-three .rank-cell {
-            color: #000000;
-        }
-
-        /* Findings Section */
-        .findings-section {
-            margin: 0;
-        }
-
-        .findings-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #000000;
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
+        .rank-cell { width: 64px; font-weight: 700; }
+        .model-cell { font-weight: 600; }
+        .elo-cell { text-align: right; color: var(--muted); }
+        .top-three .rank-cell { color: var(--accent); }
+        /* Findings */
         .findings-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 24px;
-        }
-
-        .finding-card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            padding: 40px 32px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-
-        .finding-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: #000;
-            display: flex;
-            align-items: center;
             gap: 12px;
         }
-
-        .finding-content {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #555;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        .finding-card {
+            padding: 24px 20px;
         }
-
+        .finding-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
         .finding-icon {
-            width: 28px;
-            height: 28px;
-            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            color: var(--accent);
         }
-
-        .finding-icon svg {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* Story Section */
+        .finding-content { color: var(--muted); }
+        /* Story */
         .story-section {
-            max-width: 700px;
-            margin: 60px auto;
-            padding: 0 20px;
+            max-width: 760px;
+            margin: 40px auto;
+            padding: 0 12px;
         }
-
         .story-hook {
-            font-size: 1.4rem;
-            font-weight: 600;
-            line-height: 1.6;
-            color: #000000;
-            margin-bottom: 32px;
+            font-weight: 800;
+            border-left: 3px solid var(--accent);
+            padding-left: 12px;
+            margin-bottom: 16px;
         }
-
-        .story-paragraph {
-            margin-bottom: 24px;
-            font-size: 1rem;
-            line-height: 1.8;
-            color: #2a2a2a;
-        }
-
-        .story-highlight {
-            background: #ffffff;
-            border: 1px solid #e0e0e0;
-            padding: 32px 36px;
-            margin: 32px 0;
-            font-size: 1.05rem;
-            line-height: 1.8;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-
-        .story-highlight .story-paragraph {
-            margin-bottom: 0;
-        }
-
-        /* Big Numbers Section */
+        .story-paragraph { color: var(--fg); margin-bottom: 16px; }
+        .story-highlight { padding: 20px 22px; }
+        /* Numbers */
         .numbers-section {
             max-width: 900px;
-            margin: 60px auto;
-            padding: 0 20px;
+            margin: 40px auto;
+            padding: 0 12px;
         }
-
         .numbers-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 24px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
         }
-
         .number-card {
-            background: #ffffff;
-            border: 1px solid #e0e0e0;
-            padding: 40px 32px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            padding: 28px 20px;
         }
-
         .big-number {
-            font-size: 3.5rem;
-            font-weight: 700;
-            color: #000000;
-            margin-bottom: 12px;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 900;
+            color: var(--accent);
             line-height: 1;
+            margin-bottom: 8px;
         }
-
-        .number-description {
-            font-size: 0.95rem;
-            color: #666666;
-            line-height: 1.6;
-        }
-
+        .number-description { color: var(--muted); }
         .findings-list {
-            text-align: left;
             max-width: 700px;
             margin: 0 auto;
         }
-
         .findings-list-item {
-            font-size: 1rem;
-            line-height: 1.8;
-            margin-bottom: 16px;
-            color: #2a2a2a;
+            position: relative;
+            padding-left: 18px;
+            color: var(--muted);
+            margin-bottom: 10px;
         }
-
-        /* CTA Section */
+        .findings-list-item::before {
+            content: ">";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 800;
+        }
+        /* CTA */
         .cta-section {
-            max-width: 700px;
-            margin: 60px auto 80px;
-            padding: 0 20px;
+            max-width: 760px;
+            margin: 40px auto 80px;
+            padding: 0 12px;
         }
-
-        .cta-text {
-            font-size: 1rem;
-            line-height: 1.8;
-            color: #2a2a2a;
-            margin-bottom: 32px;
-        }
-
+        .cta-text { color: var(--muted); margin-bottom: 16px; }
         .cta-buttons {
             display: flex;
-            gap: 16px;
+            gap: 10px;
             flex-wrap: wrap;
         }
-
         .cta-button {
             display: inline-block;
-            padding: 14px 28px;
-            background: #ffffff;
-            color: #000000;
-            text-decoration: none;
-            border: 2px solid #000000;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
+            padding: 10px 18px;
+            border: 1px solid var(--border);
+            color: var(--fg);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
+            font-weight: 800;
+            background: transparent;
+            transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
         }
-
         .cta-button:hover {
-            background: #000000;
-            color: #ffffff;
+            border-color: var(--accent);
+            color: var(--accent);
+            background: color-mix(in oklab, var(--accent) 6%, transparent);
         }
-
         .cta-button.primary {
-            background: #000000;
-            color: #ffffff;
-            border-color: #000000;
+            border-color: var(--accent);
+            color: var(--bg);
+            background: var(--accent);
         }
-
         .cta-button.primary:hover {
-            background: #333333;
-            border-color: #333333;
+            background: color-mix(in oklab, var(--accent) 85%, var(--fg));
+            color: var(--bg);
         }
-
         /* Responsive */
         @media (max-width: 1024px) {
-            .combined-section {
-                grid-template-columns: 1fr;
-                gap: 40px;
-            }
-
-            .nav-links {
-                gap: 16px;
-            }
+            .combined-section { grid-template-columns: 1fr; }
+            .cards-grid { grid-template-columns: 1fr; }
         }
-
-        @media (max-width: 768px) {
-            .title {
-                font-size: 2.5rem;
-            }
-
-            .subtitle {
-                font-size: 1.2rem;
-            }
-
-            .cards-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .big-number {
-                font-size: 2rem;
-            }
-
-            .nav-links {
-                flex-wrap: wrap;
-                gap: 12px;
-                font-size: 0.85rem;
-            }
-
-            .authors {
-                font-size: 0.8rem;
-            }
+        /* Manual theme override takes precedence over system preference */
+        :root[data-theme="light"] {
+            --bg: #ffffff;
+            --fg: #0b0b0b;
+            --muted: #5a5f66;
+            --border: #e5e7eb;
+            --bg-elevated: #fafafa;
+            --accent: #00cc66;
+        }
+        :root[data-theme="dark"] {
+            --bg: #0b0c0c;
+            --fg: #e7e9ea;
+            --muted: #9aa2a9;
+            --border: #1f2328;
+            --bg-elevated: #121416;
+            --accent: #00ff88;
+        }
+        /* Theme toggle button */
+        .theme-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--fg);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            z-index: 20;
+        }
+        .theme-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: color-mix(in oklab, var(--accent) 6%, transparent);
         }
     </style>
 </head>
 <body>
+    <button id="theme-toggle" class="theme-toggle mono" aria-label="Toggle theme" aria-pressed="false">THEME</button>
     <!-- Navigation Menu -->
     <nav>
         <a href="#" class="nav-logo mono">CodeClash</a>
@@ -730,6 +618,46 @@
             <a href="#" class="cta-button">Look at Trajectories</a>
         </div>
     </section>
+    <script>
+        (function () {
+            var root = document.documentElement;
+            var btn = document.getElementById('theme-toggle');
+            var media = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+
+            function readStored() {
+                try { return localStorage.getItem('theme'); } catch (e) { return null; }
+            }
+            function writeStored(theme) {
+                try { localStorage.setItem('theme', theme); } catch (e) {}
+            }
+            function effectiveTheme() {
+                var stored = readStored();
+                if (stored === 'dark' || stored === 'light') return stored;
+                return (media && media.matches) ? 'dark' : 'light';
+            }
+            function apply(theme) {
+                root.setAttribute('data-theme', theme);
+                updateLabel();
+            }
+            function updateLabel() {
+                var theme = effectiveTheme();
+                if (!btn) return;
+                btn.textContent = theme === 'dark' ? 'LIGHT' : 'DARK';
+                btn.title = 'Switch to ' + (theme === 'dark' ? 'light' : 'dark') + ' mode';
+                btn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+            }
+            function toggle() {
+                var next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+                apply(next);
+                writeStored(next);
+            }
+            if (btn) btn.addEventListener('click', toggle);
+            if (media && media.addEventListener) media.addEventListener('change', function () {
+                if (readStored() == null) apply(effectiveTheme()); else updateLabel();
+            });
+            apply(effectiveTheme());
+        })();
+    </script>
 </body>
 </html>
 
