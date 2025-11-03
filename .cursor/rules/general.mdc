@@ -6,6 +6,8 @@ This repository contains several drafts of frontpages for a new project.
 We're in the draft phase, so no need about worry about implementation details.
 Instead, every new design or idea should be implemented as a single html file that contains all relevant js and css.
 
+Always keep index.html up to date to have links to all individual example designs.
+
 ## Target audience
 
 Researchers and practitioners interested in the development of language models for code.
