@@ -1,8 +1,7 @@
 ---
-globs: story.html
+globs: story_v*.html
 alwaysApply: false
 ---
-
 ## Idea
 
 In this design, we want to emphasize storytelling.

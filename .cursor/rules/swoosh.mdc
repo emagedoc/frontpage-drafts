@@ -1,0 +1,20 @@
+---
+globs: swoosh_v*.html
+alwaysApply: false
+---
+## Idea
+
+In this design, we want to emphasize key points in the project kind of like cards that swipe the left or right (after a brief delay or when clicking).
+
+## Content
+
+You want to have a main title and a subtitle driving home, maybe as a quesiton the main idea of the project.
+
+Then there should be a link "jump to leaderboard" that scrolls to the leaderboard section.
+
+Then there should be one more cards at the same time with some key points.
+
+## Styling
+
+The target audience is programmers, researchers, software people so think of a design with clear fonts, maybe some fixed width font to emphasize the software/technical nature of the project.
+Don't do too much whimsical and make sure it doesn't look like a web shopping website or one of the anonymous business websites. Instead focus on clean minimal design, maybe like some hipster software company website.
