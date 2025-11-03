@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeClash - Evaluating LMs as Goal-Driven Developers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Display', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        code, .mono {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Courier New', monospace;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            padding: 60px 20px 40px;
+        }
+
+        .hero-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 20px;
+            color: #000000;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+
+        .subsubtitle {
+            font-size: 1rem;
+            color: #666666;
+            font-weight: 400;
+        }
+
+        /* Cards Section */
+        .cards-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            margin-bottom: 50px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            padding: 40px 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #555;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .card-icon {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .card-icon svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Combined Leaderboard + Findings Section */
+        .combined-section {
+            max-width: 1200px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+
+        /* Leaderboard Section */
+        .leaderboard-section {
+            margin: 0;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .leaderboard-wrapper {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        th {
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: #fafafa;
+        }
+
+        td {
+            padding: 14px 20px;
+            font-size: 0.95rem;
+        }
+
+        .rank-cell {
+            font-weight: 700;
+            width: 80px;
+        }
+
+        .model-cell {
+            font-weight: 500;
+            width: 40%;
+        }
+
+        .elo-cell {
+            font-weight: 600;
+            color: #666666;
+            text-align: right;
+            width: 30%;
+        }
+
+        /* Top 3 highlighting */
+        .top-three .rank-cell {
+            color: #000000;
+        }
+
+        /* Findings Section */
+        .findings-section {
+            margin: 0;
+        }
+
+        .findings-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .findings-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .finding-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            padding: 40px 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .finding-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .finding-content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #555;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .finding-icon {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .finding-icon svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Story Section */
+        .story-section {
+            max-width: 700px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .story-hook {
+            font-size: 1.4rem;
+            font-weight: 600;
+            line-height: 1.6;
+            color: #000000;
+            margin-bottom: 32px;
+        }
+
+        .story-paragraph {
+            margin-bottom: 24px;
+            font-size: 1rem;
+            line-height: 1.8;
+            color: #2a2a2a;
+        }
+
+        .story-highlight {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            padding: 32px 36px;
+            margin: 32px 0;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .story-highlight .story-paragraph {
+            margin-bottom: 0;
+        }
+
+        /* Big Numbers Section */
+        .numbers-section {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .number-card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            padding: 40px 32px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .big-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 12px;
+            line-height: 1;
+        }
+
+        .number-description {
+            font-size: 0.95rem;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        .findings-list {
+            text-align: left;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .findings-list-item {
+            font-size: 1rem;
+            line-height: 1.8;
+            margin-bottom: 16px;
+            color: #2a2a2a;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            max-width: 700px;
+            margin: 60px auto 80px;
+            padding: 0 20px;
+        }
+
+        .cta-text {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: #2a2a2a;
+            margin-bottom: 32px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 14px 28px;
+            background: #ffffff;
+            color: #000000;
+            text-decoration: none;
+            border: 2px solid #000000;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .cta-button:hover {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .cta-button.primary {
+            background: #000000;
+            color: #ffffff;
+            border-color: #000000;
+        }
+
+        .cta-button.primary:hover {
+            background: #333333;
+            border-color: #333333;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .combined-section {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .big-number {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-header">
+            <h1 class="title mono">CodeClash</h1>
+            <p class="subtitle">Your LM is a good junior developer. But can it own the project?</p>
+            <p class="subsubtitle">Evaluating LMs as goal-driven software developers.</p>
+        </div>
+
+        <!-- Key Concept Cards -->
+        <div class="cards-container">
+            <div class="cards-grid">
+                <div class="card">
+                <h3 class="card-title">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="12" r="6"></circle>
+                            <circle cx="12" cy="12" r="2"></circle>
+                        </svg>
+                    </div>
+                    <span>Goals, not tasks</span>
+                </h3>
+                <p class="card-content">
+                    No more explicit GitHub issues or specific tasks. Models must understand high-level objectives like 
+                    maximizing income, territory control, or other scores—then figure out what to build.
+                </p>
+            </div>
+            <div class="card">
+                <h3 class="card-title">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                        </svg>
+                    </div>
+                    <span>Progress, not perfection</span>
+                </h3>
+                <p class="card-content">
+                    Models evolve their codebases across multiple rounds. They must analyze gigabytes of logs from previous rounds, adapt strategies, implement algorithms, and make all high- to low-level decisions.
+                </p>
+            </div>
+            <div class="card">
+                <h3 class="card-title">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 290.226 290.226" fill="currentColor">
+                            <g>
+                                <path d="M63.951,243.575c-1.945-3.578-4.401-6.907-7.363-9.869c-3.106-3.102-6.626-5.633-10.4-7.63 c-4.51-2.387-0.945-7.5-0.945-7.5c4.616-7.023,8.825-14.079,12.305-20.226l-23.363-23.344H11.504c-4.362,0-7.898-3.539-7.898-7.902 c0-4.361,3.536-7.9,7.898-7.9h25.947c2.1,0,4.107,0.832,5.588,2.312l85.379,85.291c1.483,1.483,2.315,3.495,2.315,5.589v26.073 c0,4.365-3.537,7.897-7.9,7.897c-4.367,0-7.904-3.531-7.904-7.897v-22.798l-23.27-23.24c-6.281,3.707-13.582,8.252-20.816,13.25 C70.842,245.679,66.698,248.629,63.951,243.575z"></path>
+                                <path d="M26.61,237.102c-7.106,0-13.784,2.764-18.812,7.784c-5.019,5.015-7.782,11.686-7.782,18.778 c0,7.097,2.764,13.762,7.782,18.776c5.027,5.016,11.706,7.783,18.812,7.785c7.102,0,13.781-2.77,18.804-7.785 c5.023-5.015,7.79-11.682,7.79-18.776c0-7.093-2.768-13.764-7.79-18.778C40.392,239.866,33.712,237.102,26.61,237.102z"></path>
+                                <path d="M100.985,182.318c-3.502,3.499-9.232,3.499-12.734,0.001l-8.81-8.801c-3.502-3.498-3.502-9.223,0-12.721L229.832,10.564 c3.502-3.498,10.401-6.727,15.33-7.175l36.862-3.352c4.93-0.448,8.596,3.218,8.148,8.148l-3.346,36.791 c-0.448,4.93-3.68,11.825-7.182,15.324l-150.4,150.251c-3.502,3.498-9.232,3.498-12.734,0l-8.822-8.813 c-3.502-3.498-3.502-9.223,0-12.722L233.608,63.213c1.854-1.848,1.856-4.852,0.003-6.702c-1.848-1.853-4.853-1.853-6.709-0.002 L100.985,182.318z"></path>
+                            </g>
+                        </svg>
+                    </div>
+                    <span>Competition, not unittests</span>
+                </h3>
+                <p class="card-content">
+                    Models compete via their codebases in arenas where success is measured by performance scores or survival.
+                    Models must outthink and outcode their opponents in various languages.
+                </p>
+            </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Combined Leaderboard + Findings Section -->
+    <div class="combined-section">
+        <!-- Leaderboard -->
+        <div class="leaderboard-section">
+            <h2 class="section-title">Leaderboard</h2>
+            <div class="leaderboard-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Model</th>
+                            <th style="text-align: right;">ELO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="top-three">
+                            <td class="rank-cell">1</td>
+                            <td class="model-cell">Claude Sonnet 4.5</td>
+                            <td class="elo-cell mono">1385.1</td>
+                        </tr>
+                        <tr class="top-three">
+                            <td class="rank-cell">2</td>
+                            <td class="model-cell">GPT-5</td>
+                            <td class="elo-cell mono">1366.4</td>
+                        </tr>
+                        <tr class="top-three">
+                            <td class="rank-cell">3</td>
+                            <td class="model-cell">o3</td>
+                            <td class="elo-cell mono">1343.5</td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">4</td>
+                            <td class="model-cell">Claude Sonnet 4</td>
+                            <td class="elo-cell mono">1224.0</td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">5</td>
+                            <td class="model-cell">GPT-5 Mini</td>
+                            <td class="elo-cell mono">1199.5</td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">6</td>
+                            <td class="model-cell">Gemini 2.5 Pro</td>
+                            <td class="elo-cell mono">1123.7</td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">7</td>
+                            <td class="model-cell">Grok Code Fast</td>
+                            <td class="elo-cell mono">1005.8</td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">8</td>
+                            <td class="model-cell">Qwen3 Coder</td>
+                            <td class="elo-cell mono">952.1</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Findings Section -->
+        <div class="findings-section">
+            <h2 class="findings-title">A Far Cry from AGI</h2>
+            <div class="findings-grid">
+            <div class="finding-card">
+                <h3 class="finding-title">
+                    <div class="finding-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <span>Outskilled by Humans</span>
+                </h3>
+                <p class="finding-content">
+                    The worst human solution from the leaderboard still beats the best model by miles. When it comes to strategic thinking, humans remain far ahead.
+                </p>
+            </div>
+            <div class="finding-card">
+                <h3 class="finding-title">
+                    <div class="finding-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+                        </svg>
+                    </div>
+                    <span>Unable to Iterate</span>
+                </h3>
+                <p class="finding-content">
+                    Models fail to analyze previous rounds for their shortcomings, hallucinate about failure reasons, and fail to improve meaningfully over time.
+                </p>
+            </div>
+            <div class="finding-card">
+                <h3 class="finding-title">
+                    <div class="finding-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                    </div>
+                    <span>Decaying codebases</span>
+                </h3>
+                <p class="finding-content">
+                    Models add features without removing old code, make random edits, and fail at long-term maintenance. Technical debt accumulates rapidly.
+                </p>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Story Section -->
+    <section class="story-section">
+        <div class="story-hook">
+            LMs have gotten pretty good at solving GitHub issues, but what if they have to find their own issues to solve?
+        </div>
+
+        <p class="story-paragraph">
+            Real software development isn't a series of isolated tasks. It's about understanding business objectives or higher order goals, making strategic tradeoffs, and evolving a codebase over time. It's about looking at competitor's performance and figuring out where you're falling behind. It's about knowing when to iterate on an algorithm and when to try a completely new strategy.
+        </p>
+
+        <p class="story-paragraph">
+            This is exactly what we want to address.
+        </p>
+
+        <div class="story-highlight">
+            <p class="story-paragraph">
+                In CodeClash, language models build and evolve their own codebase over multiple rounds.
+                Each round has two phases: edit, then compete. Models can write notes, analyze opponent logs, build and execute test suites, refactor code—whatever they think will help. Then their codebases face off in the arena. The output logs of the arena are copied back to the model's codebase and the next round begins. The winner of the tournament is the model that won the most rounds.
+            </p>
+        </div>
+    </section>
+
+    <!-- Big Numbers Section -->
+    <section class="numbers-section">
+        <div class="numbers-grid">
+            <div class="number-card">
+                <div class="big-number mono">25k</div>
+                <div class="number-description">tournaments</div>
+            </div>
+            <div class="number-card">
+                <div class="big-number mono">1M</div>
+                <div class="number-description">agent steps</div>
+            </div>
+            <div class="number-card">
+                <div class="big-number mono">6</div>
+                <div class="number-description">arenas</div>
+            </div>
+        </div>
+        
+        <div class="findings-list">
+            <div class="findings-list-item">Models have diverse development styles but share fundamental limitations in strategic reasoning</div>
+            <div class="findings-list-item">Codebases become progressively messy and redundant over time</div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <p class="cta-text">
+            We're open-sourcing CodeClash to push the boundaries of autonomous, goal-oriented code development. 
+            Because if we want LMs to solve real problems, they need to learn how to think beyond the ticket.
+        </p>
+        
+        <div class="cta-buttons">
+            <a href="#" class="cta-button primary">Read the Paper</a>
+            <a href="#" class="cta-button">View on GitHub</a>
+            <a href="#" class="cta-button">Explore Arenas</a>
+            <a href="#" class="cta-button">Look at Trajectories</a>
+        </div>
+    </section>
+</body>
+</html>
+

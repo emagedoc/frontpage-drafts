@@ -1,0 +1,96 @@
+---
+globs: inter_v*.md
+alwaysApply: false
+---
+
+Subtitle/catch line should be: "Your LM is a good junior developer. But can it own the project?"
+
+Then subsubtitle: "Evaluating LMs as goal-driven software developers."
+
+Then I want one row of maybe three cards that explain the key idea of the project.
+
+THen we have the leaderboard table.
+
+Then under it, we will have three more insights.
+
+And then some more paragraphs about the project.
+
+## Cards 1:
+
+Goals, not tasks
+No more explicit GitHub issues or specific tasks. Models must understand high-level objectives like 
+maximizing income, territory control, or other scores—then figure out what to build.
+
+Progress, not perfection
+Models evolve their codebases across multiple rounds. They must analyze gigabytes of logs from previous rounds, adapt strategies, implement algorithms, and make all high- to low-level decisions.
+
+Competition, not tests
+Models compete via their codebases in arenas where success is measured by performance scores or survival.
+Models must outthink and outcode their opponents in various languages.
+
+## Leaderboard
+
+Three columns, Rank, Model, ELO.
+Highlight the top three models.
+Visualize the Elo values as bar chart that is in the background of the table result
+(the visual should be mostly that of a table with the bar chart kind of in the background)
+
+
+## Findings
+
+Instead of 'findings', let's write "A far cry from AGI"
+
+- Outskilled by humans: In ..., the worst human solution from the leaderbaord still beats the best model by miles.
+- Unable to iterate: Models fail to analyze previous rounds for their shortcomings, hallucinate about failure reasons, and fail to improve.
+- Codebase decay: Models add features without removing old code, make random edits, and fail at long-term maintenance. 
+
+## Story
+
+Then we go full on story mode and do something like this:
+
+Story hook (format so it stands out)
+
+What’s the difference between a junior and a lead software developer? One thinks about how to implement, the other about what to implement. 
+LMs have gotten pretty good at solving GitHub issues, but what if they have to find their own issues to solve?
+
+Then one more paragraph that doesn't need to be emphasized:
+
+Real software development isn't a series of isolated tasks. It's about understanding business objectives or higher order goals, making strategic tradeoffs, and evolving a codebase over time. It's about looking at competitor's performance and figuring out where you're falling behind. It's about knowing when to iterate on an algorithm and when to try a completely new strategy. 
+
+This is exactly what we want to address.
+
+Then we want to highlight the main idea of the project (format so it stands out)
+
+In CodeClash, language models builds and evolves its own codebase over multiple rounds.
+Each round has two phases: edit, then compete. Models can write notes, analyze opponent logs, build and execute test suites, refactor code—whatever they think will help. Then their codebases face off in the arena. The output logs of the arena are copied back to the model's codebase and the next round begins. The winner of the tournament is the model with that won the most rounds.
+
+## Big numbers
+
+Now shine some highlight on some big numbers based on this information
+
+$1680$ tournaments ($25$,$200$ rounds total) to evaluate $8$ LMs across $6$ arenas.
+
+Now continue with some findings typed out:
+
+Models have diverse development styles but share fundamental limitations in strategic reasoning
+Codebases become progressively messy and redundant over time
+
+## Closing words & hooks
+
+Add:
+
+We're open-sourcing CodeClash to push the boundaries of autonomous, goal-oriented code development. Because if we want LMs to solve real problems, they need to learn how to think beyond the ticket. 
+
+
+Add buttons:
+
+- Read the paper
+- View on GitHub
+- Explore Arenas
+- Look at trajectories
+
+## Style
+
+Target audience is programmers, researchers, software people so think of a design with clear fonts, maybe some fixed width font to emphasize the software/technical nature of the project.
+Emphasize white on black or black on white, with maybe one color for the highlight.
+Aim for clear lines, don't do whimsical or cartoonish designs.

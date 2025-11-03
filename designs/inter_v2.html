@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeClash - Evaluating LMs as Goal-Driven Software Developers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica', Arial, sans-serif;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            padding: 80px 0 40px 0;
+            text-align: center;
+            border-bottom: 2px solid #1a1a1a;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+
+        .subsubtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 60px;
+            font-weight: 400;
+        }
+
+        /* Key Cards */
+        .key-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 60px 0;
+        }
+
+        .card {
+            border: 2px solid #1a1a1a;
+            padding: 30px;
+            background-color: #ffffff;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 8px 8px 0 #1a1a1a;
+        }
+
+        .card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .card p {
+            color: #333;
+            line-height: 1.7;
+        }
+
+        /* Leaderboard Section */
+        .leaderboard-section {
+            padding: 60px 0;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto;
+            max-width: 800px;
+            position: relative;
+        }
+
+        .leaderboard-table thead th {
+            text-align: left;
+            padding: 20px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-bottom: 3px solid #1a1a1a;
+            font-family: 'Courier New', monospace;
+        }
+
+        .leaderboard-table tbody tr {
+            position: relative;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .leaderboard-table tbody td {
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+            font-size: 1.05rem;
+        }
+
+        .leaderboard-table tbody td:first-child {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+        }
+
+        .leaderboard-table tbody td:nth-child(2) {
+            font-weight: 600;
+        }
+
+        .leaderboard-table tbody td:last-child {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+
+        .leaderboard-table tbody tr.top-3 {
+            background-color: #f8f8f8;
+            font-weight: 600;
+        }
+
+        .elo-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background-color: #e8f4f8;
+            z-index: 1;
+            transition: width 0.5s ease-out;
+        }
+
+        .leaderboard-table tbody tr.top-3 .elo-bar {
+            background-color: #d4e9f7;
+        }
+
+        /* Findings Section */
+        .findings-section {
+            padding: 80px 0;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .findings-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            text-align: center;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .findings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .finding-item {
+            padding-left: 25px;
+            border-left: 4px solid #1a1a1a;
+        }
+
+        .finding-item h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .finding-item p {
+            color: #444;
+            line-height: 1.7;
+        }
+
+        /* Story Section */
+        .story-section {
+            padding: 80px 0;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .story-hook {
+            font-size: 1.8rem;
+            line-height: 1.5;
+            margin-bottom: 40px;
+            padding: 40px;
+            background-color: #f8f8f8;
+            border-left: 6px solid #1a1a1a;
+            font-weight: 500;
+        }
+
+        .story-paragraph {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            color: #333;
+        }
+
+        .main-idea {
+            font-size: 1.5rem;
+            line-height: 1.6;
+            margin: 60px 0;
+            padding: 50px;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border: 4px solid #1a1a1a;
+        }
+
+        .main-idea strong {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 20px;
+            font-size: 1.7rem;
+        }
+
+        /* Big Numbers */
+        .big-numbers {
+            padding: 80px 0;
+            text-align: center;
+            background-color: #f8f8f8;
+            border-top: 2px solid #e0e0e0;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .number-item {
+            padding: 30px;
+        }
+
+        .number-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+
+        .number-label {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Additional Findings */
+        .additional-findings {
+            padding: 80px 0;
+        }
+
+        .additional-findings ul {
+            list-style: none;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .additional-findings li {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .additional-findings li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 0;
+            text-align: center;
+            border-top: 2px solid #1a1a1a;
+            background-color: #f8f8f8;
+        }
+
+        footer p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        footer a {
+            color: #1a1a1a;
+            text-decoration: none;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            border-bottom: 2px solid #1a1a1a;
+            padding-bottom: 2px;
+        }
+
+        footer a:hover {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                font-size: 1.4rem;
+            }
+
+            .key-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .story-hook {
+                font-size: 1.4rem;
+                padding: 30px;
+            }
+
+            .main-idea {
+                font-size: 1.2rem;
+                padding: 30px;
+            }
+
+            .number-value {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>CodeClash</h1>
+            <div class="subtitle">Your LM is a good junior developer. But can it own the project?</div>
+            <div class="subsubtitle">Evaluating LMs as goal-driven software developers.</div>
+        </div>
+    </header>
+
+    <main>
+        <section class="key-cards-section">
+            <div class="container">
+                <div class="key-cards">
+                    <div class="card">
+                        <h3>Goals instead of tasks</h3>
+                        <p>No more explicit GitHub issues or specific tasks. Models must understand high-level objectives like maximizing income, territory control, or other scores—then figure out what to build.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Iterative development</h3>
+                        <p>Across multiple rounds, models maintain and evolve their codebases. They must analyze gigabytes of logs from previous rounds, adapt strategies, implement algorithms, and make decisions just like real developers.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Head-to-Head Competition</h3>
+                        <p>Models compete via their codebases in arenas where success is measured by performance scores or survival. Models must outthink and outcode their opponents in various languages.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="leaderboard-section">
+            <div class="container">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Model</th>
+                            <th>ELO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="top-3" data-elo="1385.1">
+                            <td>1</td>
+                            <td>Claude Sonnet 4.5</td>
+                            <td>1385.1</td>
+                            <div class="elo-bar" style="width: 0%"></div>
+                        </tr>
+                        <tr class="top-3" data-elo="1366.4">
+                            <td>2</td>
+                            <td>GPT-5</td>
+                            <td>1366.4</td>
+                            <div class="elo-bar" style="width: 0%"></div>
+                        </tr>
+                        <tr class="top-3" data-elo="1343.5">
+                            <td>3</td>
+                            <td>o3</td>
+                            <td>1343.5</td>
+                            <div class="elo-bar" style="width: 0%"></div>
+                        </tr>
+                        <tr data-elo="1224.0">
+                            <td>4</td>
+                            <td>Claude Sonnet 4</td>
+                            <td>1224.0</td>
+                            <div class="elo-bar" style="width: 0%"></div>
+                        </tr>
+                        <tr data-elo="1199.5">
+                            <td>5</td>
+                            <td>GPT-5 Mini</td>
+                            <td>1199.5</td>
+                            <div class="elo-bar" style="width: 0%"></div>
+                        </tr>
+                        <tr data-elo="1123.7">
+                            <td>6</td>
+                            <td>Gemini 2.5 Pro</td>
+                            <td>1123.7</td>
+                            <div class="elo-bar" style="width: 0%"></div>
+                        </tr>
+                        <tr data-elo="1005.8">
+                            <td>7</td>
+                            <td>Grok Code Fast</td>
+                            <td>1005.8</td>
+                            <div class="elo-bar" style="width: 0%"></div>
+                        </tr>
+                        <tr data-elo="952.1">
+                            <td>8</td>
+                            <td>Qwen3 Coder</td>
+                            <td>952.1</td>
+                            <div class="elo-bar" style="width: 0%"></div>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="findings-section">
+            <div class="container">
+                <h2>A far cry from AGI</h2>
+                <div class="findings-grid">
+                    <div class="finding-item">
+                        <h3>Outskilled by humans</h3>
+                        <p>The worst human solution from the leaderboard still beats the best model by miles.</p>
+                    </div>
+                    <div class="finding-item">
+                        <h3>Unable to iterate</h3>
+                        <p>Models fail to analyze previous rounds for their shortcomings, hallucinate about failure reasons, and fail to improve.</p>
+                    </div>
+                    <div class="finding-item">
+                        <h3>Codebase decay</h3>
+                        <p>Models add features without removing old code, make random edits, and fail at long-term maintenance.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="story-section">
+            <div class="container">
+                <div class="story-hook">
+                    What's the difference between a junior and a lead software developer? One thinks about how to implement, the other about what to implement. LMs have gotten pretty good at solving GitHub issues, but what if they have to prioritize… ?
+                </div>
+
+                <div class="story-paragraph">
+                    Real software development isn't a series of isolated tasks. It's about understanding business objectives or higher order goals, making strategic tradeoffs, and evolving a codebase over time. It's about looking at competitor's performance and figuring out where you're falling behind. It's about knowing when to iterate on an algorithm and when to try a completely new strategy.
+                </div>
+
+                <div class="main-idea">
+                    <strong>CodeClash evaluates exactly this capability.</strong>
+                    Language models build and evolve their own codebases over multiple rounds. Each round has two phases: edit, then compete. Models can write notes, analyze opponent logs, build and execute test suites, refactor code—whatever they think will help. Then their codebases face off in the arena. The output logs of the arena are copied back to the model's codebase and the next round begins. The winner of the tournament is the model that won the most rounds.
+                </div>
+            </div>
+        </section>
+
+        <section class="big-numbers">
+            <div class="container">
+                <div class="numbers-grid">
+                    <div class="number-item">
+                        <div class="number-value">1,680</div>
+                        <div class="number-label">Tournaments</div>
+                    </div>
+                    <div class="number-item">
+                        <div class="number-value">25,200</div>
+                        <div class="number-label">Total Rounds</div>
+                    </div>
+                    <div class="number-item">
+                        <div class="number-value">8</div>
+                        <div class="number-label">Language Models</div>
+                    </div>
+                    <div class="number-item">
+                        <div class="number-value">6</div>
+                        <div class="number-label">Arenas</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="additional-findings">
+            <div class="container">
+                <ul>
+                    <li>Models have diverse development styles but share fundamental limitations in strategic reasoning</li>
+                    <li>Codebases become progressively messy and redundant over time</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>CodeClash is open-source to advance the study of autonomous, goal-oriented code development.</p>
+            <a href="#">Read the Paper</a> | <a href="#">View on GitHub</a>
+        </div>
+    </footer>
+
+    <script>
+        // Animate ELO bars on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('.leaderboard-table tbody tr');
+            const maxElo = 1385.1; // Highest ELO value
+            const minElo = 950; // For better visualization
+            
+            setTimeout(function() {
+                rows.forEach(row => {
+                    const elo = parseFloat(row.getAttribute('data-elo'));
+                    const bar = row.querySelector('.elo-bar');
+                    const widthPercent = ((elo - minElo) / (maxElo - minElo)) * 100;
+                    bar.style.width = widthPercent + '%';
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html>
