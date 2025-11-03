@@ -56,6 +56,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 20px 24px;
+            padding-right: 120px;
             border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
@@ -84,7 +85,6 @@
         /* Hero */
         .hero {
             padding: 56px 20px 40px;
-            border-bottom: 1px solid var(--border);
         }
         .hero-header {
             max-width: 1000px;
@@ -95,26 +95,28 @@
             font-size: clamp(2.4rem, 6vw, 4rem);
             font-weight: 800;
             letter-spacing: -0.02em;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             background: linear-gradient(135deg, #00ff88, #00ff88 20%, #00cc66 80%, #009944);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .subtitle {
-            font-size: clamp(1rem, 2.5vw, 1.25rem);
-            color: var(--fg);
-            margin-bottom: 6px;
-        }
         .subsubtitle {
-            font-size: 0.95rem;
-            color: var(--fg);
-            margin-bottom: 24px;
+            font-size: 1.1rem;
+            color: var(--muted);
+            margin-bottom: 12px;
         }
         .authors {
             font-size: 0.85rem;
             color: var(--muted);
             line-height: 1.5;
+            margin-bottom: 32px;
+        }
+        .subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: var(--fg);
+            margin-top: 24px;
+            margin-bottom: 0;
         }
         .authors sup {
             font-size: 0.75em;
@@ -125,7 +127,7 @@
         /* Cards */
         .cards-container {
             max-width: 1100px;
-            margin: 32px auto 0;
+            margin: 16px auto 0;
             padding: 0 12px;
         }
         .cards-grid {
@@ -147,9 +149,10 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
             margin-bottom: 10px;
+            white-space: nowrap;
         }
         .card-icon {
             width: 22px;
@@ -170,7 +173,7 @@
             gap: 24px;
         }
         .section-title, .findings-title {
-            text-align: left;
+            text-align: center;
             font-weight: 800;
             font-size: 1.6rem;
             margin-bottom: 20px;
@@ -210,6 +213,11 @@
         }
         .finding-card {
             padding: 24px 20px;
+            transition: border-color 0.15s ease, transform 0.15s ease;
+        }
+        .finding-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-1px);
         }
         .finding-title {
             display: flex;
@@ -244,15 +252,39 @@
             margin: 40px auto;
             padding: 0 12px;
         }
+        .numbers-intro {
+            text-align: left;
+            font-size: 1.1rem;
+            color: var(--fg);
+            margin-bottom: 24px;
+            font-weight: 600;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
         .numbers-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 12px;
-            margin-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .numbers-outro {
+            text-align: left;
+            font-size: 1rem;
+            color: var(--muted);
+            margin-bottom: 24px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .number-card {
             text-align: center;
             padding: 28px 20px;
+            transition: border-color 0.15s ease, transform 0.15s ease;
+        }
+        .number-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-1px);
         }
         .big-number {
             font-size: clamp(2rem, 5vw, 3rem);
@@ -341,15 +373,16 @@
         /* Theme toggle button */
         .theme-toggle {
             position: fixed;
-            top: 16px;
-            right: 16px;
-            padding: 8px 12px;
+            top: 24px;
+            right: 24px;
+            padding: 8px 14px;
             border: 1px solid var(--border);
             background: transparent;
             color: var(--fg);
             font-weight: 800;
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
             cursor: pointer;
             z-index: 20;
         }
@@ -378,7 +411,6 @@
     <section class="hero">
         <div class="hero-header">
             <h1 class="title mono">CodeClash</h1>
-            <p class="subtitle">Your LM is a good junior developer. But can it own the project?</p>
             <p class="subsubtitle">Evaluating LMs as goal-driven software developers.</p>
             
             <div class="authors">
@@ -392,6 +424,8 @@
                 <br>
                 <sup>1</sup>Stanford University &nbsp; <sup>2</sup>Princeton University &nbsp; <sup>3</sup>Cornell University
             </div>
+            
+            <p class="subtitle">Your LM is a good junior developer. But can it own the project?</p>
         </div>
 
         <!-- Key Concept Cards -->
@@ -409,8 +443,7 @@
                     <span>Goals, not tasks</span>
                 </h3>
                 <p class="card-content">
-                    No more explicit GitHub issues or specific tasks. Models must understand high-level objectives like 
-                    maximizing income, territory control, or other scores—then figure out what to build.
+                    No more explicit GitHub issues or specific tasks. Models must understand high-level objectives, then figure out what to build.
                 </p>
             </div>
             <div class="card">
@@ -424,7 +457,7 @@
                     <span>Progress, not perfection</span>
                 </h3>
                 <p class="card-content">
-                    Models evolve their codebases across multiple rounds. They must analyze gigabytes of logs from previous rounds, adapt strategies, implement algorithms, and make all high- to low-level decisions.
+                    Models evolve their codebases across multiple rounds, analyze gigabytes of logs, adapt strategies, implement algorithms, and make all high- to low-level decisions.
                 </p>
             </div>
             <div class="card">
@@ -441,8 +474,7 @@
                     <span>Competition, not unittests</span>
                 </h3>
                 <p class="card-content">
-                    Models compete via their codebases in arenas where success is measured by performance scores or survival.
-                    Models must outthink and outcode their opponents in various languages.
+                    Models compete via their codebases in arenas where success is measured by income, territory control, survival, and other scores.
                 </p>
             </div>
             </div>
@@ -566,7 +598,7 @@
         </div>
 
         <p class="story-paragraph">
-            Real software development isn't a series of isolated tasks. It's about understanding business objectives or higher order goals, making strategic tradeoffs, and evolving a codebase over time. It's about looking at competitor's performance and figuring out where you're falling behind. It's about knowing when to iterate on an algorithm and when to try a completely new strategy.
+            Real software development isn't a series of isolated tasks. It's about understanding business objectives or higher order goals, making strategic tradeoffs, and evolving a codebase over time.
         </p>
 
         <p class="story-paragraph">
@@ -576,27 +608,35 @@
         <div class="story-highlight">
             <p class="story-paragraph">
                 In CodeClash, language models build and evolve their own codebase over multiple rounds.
-                Each round has two phases: edit, then compete. Models can write notes, analyze opponent logs, build and execute test suites, refactor code—whatever they think will help. Then their codebases face off in the arena. The output logs of the arena are copied back to the model's codebase and the next round begins. The winner of the tournament is the model that won the most rounds.
+                Each round has two phases: edit, then compete. <strong>Models can write notes, analyze opponent logs, build and execute test suites, refactor code—whatever they think will help. Then their codebases face off in the arena.</strong> The output logs of the arena are copied back to the model's codebase and the next round begins. The winner of the tournament is the model that won the most rounds.
             </p>
         </div>
     </section>
 
     <!-- Big Numbers Section -->
     <section class="numbers-section">
+        <p class="numbers-intro">
+            Evaluating CodeClash has been a massive project, significantly larger than our work on SWE-bench.
+        </p>
+        
         <div class="numbers-grid">
             <div class="number-card">
-                <div class="big-number mono">25k</div>
+                <div class="big-number mono">2k</div>
                 <div class="number-description">tournaments</div>
+            </div>
+            <div class="number-card">
+                <div class="big-number mono">50k</div>
+                <div class="number-description">agent trajectories</div>
             </div>
             <div class="number-card">
                 <div class="big-number mono">1M</div>
                 <div class="number-description">agent steps</div>
             </div>
-            <div class="number-card">
-                <div class="big-number mono">6</div>
-                <div class="number-description">arenas</div>
-            </div>
         </div>
+        
+        <p class="numbers-outro">
+            CodeClash allows to evaluate LMs under much more autonomous situations.
+        </p>
         
         <div class="findings-list">
             <div class="findings-list-item">Models have diverse development styles but share fundamental limitations in strategic reasoning</div>
