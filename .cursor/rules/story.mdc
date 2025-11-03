@@ -1,0 +1,26 @@
+---
+globs: story.html
+alwaysApply: false
+---
+
+## Idea
+
+In this design, we want to emphasize storytelling.
+There are first a few short paragraphs that tell the story of the project.
+Then, there is the leaderboard table.
+
+## Content
+
+Here is a possible example of such a story:
+
+We all know that LMs make pretty good junior developers. Give them a small bug or ask them to implement something specific, they’ll get it done most of the time.
+But the real world has no GitHub issues, only goals
+
+Complete the story based on the abstract.
+
+## Styling
+
+The story should be in short sentences at the top of the page, but even before that there should be a link "jump to leaderboard".
+
+The target audience is programmers, hackers, researchers, so think of a design with strong whites and blacks, clear fonts, maybe some fixed width font to emphasize the software/technical nature of the project.
+

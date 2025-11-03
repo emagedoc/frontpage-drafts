@@ -1,0 +1,41 @@
+---
+alwaysApply: true
+---
+
+This repository contains several drafts of frontpages for a new project.
+We're in the draft phase, so no need about worry about implementation details.
+Instead, every new design or idea should be implemented as a single html file that contains all relevant js and css.
+
+## Target audience
+
+Researchers and practitioners interested in the development of language models for code.
+
+## Overall tone
+
+This is a technical project, however we want to avoid being too technical and academic
+(there's already the paper), so instead it is the most important thing to 
+
+1. Get people interested & excited
+2. Give a sense of the project and what it's all about
+
+You don't have to be formal on the front page.
+
+## Project abstract
+
+Current benchmarks for coding evaluate language models (LMs) on concrete, well-specified tasks such as fixing specific bugs or writing targeted tests.
+However, human programmers do not spend all day addressing isolated tasks.
+Instead, real-world software development is grounded in the pursuit of high-level goals, like improving user retention or reducing costs.
+Evaluating whether LMs can also iteratively develop code to better accomplish open-ended objectives without any explicit guidance remains an open challenge.
+To address this, we introduce CodeClash, a benchmark where LMs compete in multi-round tournaments to build the best codebase for achieving a competitive objective.
+Each round proceeds in two phases: agents edit their code, then their codebases compete head-to-head in a code arena that determines winners based on objectives like score maximization, resource acquisition, or survival.
+Whether it's writing notes, scrutinizing documentation, analyzing competition logs, or creating test suites, models must decide for themselves how to improve their codebases both absolutely and against their opponents.
+We run $1680$ tournaments ($25$,$200$ rounds total) to evaluate $8$ LMs across $6$ arenas.
+Our results reveal that while models exhibit diverse development styles, they share fundamental limitations in strategic reasoning.
+Models also struggle with long-term codebase maintenance, as repositories become progressively messy and redundant.
+These limitations are stark: top models lose every round against expert human programmers.
+We open-source CodeClash to advance the study of autonomous, goal-oriented code development.
+
+## Key elements of the front page
+
+Every front page needs to include the leaderboard for the benchmark.
+You can find the data in the `data.md` file.
