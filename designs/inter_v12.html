@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeClash - Evaluating LMs as Goal-Driven Developers</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --fg: #0b0b0b;
+            --muted: #5a5f66;
+            --border: #e5e7eb;
+            --accent: #00cc66;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0b0c0c;
+                --fg: #e7e9ea;
+                --muted: #9aa2a9;
+                --border: #1f2328;
+                --accent: #00ff88;
+            }
+        }
+        :root[data-theme="light"] {
+            --bg: #ffffff;
+            --fg: #0b0b0b;
+            --muted: #5a5f66;
+            --border: #e5e7eb;
+            --accent: #00cc66;
+        }
+        :root[data-theme="dark"] {
+            --bg: #0b0c0c;
+            --fg: #e7e9ea;
+            --muted: #9aa2a9;
+            --border: #1f2328;
+            --accent: #00ff88;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.9rem;
+        }
+        ::selection {
+            background: color-mix(in oklab, var(--accent) 30%, transparent);
+        }
+        a {
+            color: var(--fg);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+        }
+        a:hover {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            padding-right: 120px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 10;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .nav-logo {
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            font-size: 0.9rem;
+        }
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+        }
+        .nav-links a {
+            opacity: 0.9;
+        }
+        .nav-links a:hover {
+            opacity: 1;
+        }
+        .hero {
+            padding: 8px 20px 18px;
+        }
+        .hero-header {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 160px;
+            margin-bottom: -10px;
+            position: relative;
+        }
+        .logo {
+            width: 160px;
+            height: 160px;
+            position: absolute;
+        }
+        .logo-left {
+            animation: slideFromLeft 0.7s ease-out forwards;
+        }
+        .logo-right {
+            animation: slideFromRight 0.7s ease-out forwards;
+        }
+        @keyframes slideFromLeft {
+            0% {
+                transform: translateX(-300px);
+            }
+            100% {
+                transform: translateX(-40px);
+            }
+        }
+        @keyframes slideFromRight {
+            0% {
+                transform: translateX(300px);
+            }
+            100% {
+                transform: translateX(40px);
+            }
+        }
+        .title {
+            font-size: clamp(2.4rem, 6vw, 4rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+            color: var(--fg);
+        }
+        .title-word {
+            display: inline-block;
+        }
+        .title-code {
+            animation: codeMove 1.7s ease-in-out forwards;
+        }
+        .title-clash {
+            animation: clashMove 1.7s ease-in-out forwards;
+        }
+        @keyframes codeMove {
+            0%, 58.8% {
+                transform: translateX(0);
+            }
+            70.6% {
+                transform: translateX(-15px);
+            }
+            79.4% {
+                transform: translateX(8px);
+            }
+            88.2% {
+                transform: translateX(-3px);
+            }
+            100% {
+                transform: translateX(0);
+            }
+        }
+        @keyframes clashMove {
+            0%, 58.8% {
+                transform: translateX(0);
+            }
+            70.6% {
+                transform: translateX(15px);
+            }
+            79.4% {
+                transform: translateX(-8px);
+            }
+            88.2% {
+                transform: translateX(3px);
+            }
+            100% {
+                transform: translateX(0);
+            }
+        }
+        .subtitle {
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            margin-top: -24px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 12px;
+        }
+        .section-title {
+            text-align: center;
+            font-weight: 800;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+        .bordered {
+            background: transparent;
+            border: 1px solid var(--border);
+            transition: border-color 0.15s ease;
+        }
+        .bordered:hover {
+            border-color: var(--accent);
+        }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .card {
+            padding: 28px 24px;
+        }
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            white-space: nowrap;
+        }
+        .icon {
+            width: 20px;
+            height: 20px;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+        .card-content {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+        .combined-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 18px auto 40px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        thead th {
+            text-align: left;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--muted);
+            letter-spacing: 0.06em;
+        }
+        tbody td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        tbody tr:hover {
+            background: color-mix(in oklab, var(--accent) 6%, var(--bg));
+        }
+        .rank-cell { width: 64px; font-weight: 700; }
+        .model-cell { 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .model-logo {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+        .elo-cell { text-align: right; color: var(--muted); }
+        .findings-grid {
+            display: grid;
+            gap: 12px;
+        }
+        .finding {
+            padding: 24px 20px;
+        }
+        .story-section {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 12px;
+        }
+        .story-hook {
+            font-weight: 800;
+            border-left: 3px solid var(--accent);
+            padding: 0 0 0 12px;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+        }
+        .story-paragraph {
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+        }
+        .big-number {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 900;
+            color: var(--accent);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .cta-section {
+            max-width: 760px;
+            margin: 40px auto 80px;
+            padding: 0 12px;
+            text-align: center;
+        }
+        .cta-text {
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 10px 18px;
+            border: 1px solid var(--border);
+            color: var(--fg);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 800;
+            background: transparent;
+            transition: all 0.15s ease;
+        }
+        .cta-button:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: color-mix(in oklab, var(--accent) 6%, transparent);
+        }
+        .cta-button.primary {
+            border-color: var(--accent);
+            color: var(--bg);
+            background: var(--accent);
+        }
+        .cta-button.primary:hover {
+            background: color-mix(in oklab, var(--accent) 85%, var(--fg));
+        }
+        .theme-toggle {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--fg);
+            font-weight: 800;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            z-index: 20;
+        }
+        .theme-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: color-mix(in oklab, var(--accent) 6%, transparent);
+        }
+        @media (max-width: 1024px) {
+            .combined-section { grid-template-columns: 1fr; }
+            .cards-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">THEME</button>
+    
+    <nav>
+        <a href="#" class="nav-logo">CodeClash</a>
+        <ul class="nav-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#arenas">Arenas</a></li>
+            <li><a href="#docs">Docs</a></li>
+            <li><a href="#insights">Insights</a></li>
+            <li><a href="#team">Team</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-header">
+            <div class="logo-container">
+                <img src="clash_r.svg" alt="CodeClash Logo Left" class="logo logo-left">
+                <img src="clash_g.svg" alt="CodeClash Logo Right" class="logo logo-right">
+            </div>
+            <h1 class="title"><span class="title-word title-code">Code</span><span class="title-word title-clash">Clash</span></h1>
+            <p class="subtitle">Benchmarking Goal-Oriented Software Engineering</p>
+        </div>
+    </section>
+
+    <div class="container combined-section">
+        <div>
+            <h2 class="section-title">Leaderboard</h2>
+            <div class="bordered">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Model</th>
+                            <th style="text-align: right;">ELO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="top-three">
+                            <td class="rank-cell">1</td>
+                            <td class="model-cell">
+                                <img src="anthropic.svg" alt="Anthropic" class="model-logo">
+                                <span>Claude Sonnet 4.5</span>
+                            </td>
+                            <td class="elo-cell">1385 ± 18</td>
+                        </tr>
+                        <tr class="top-three">
+                            <td class="rank-cell">2</td>
+                            <td class="model-cell">
+                                <img src="openai.svg" alt="OpenAI" class="model-logo">
+                                <span>GPT-5</span>
+                            </td>
+                            <td class="elo-cell">1366 ± 17</td>
+                        </tr>
+                        <tr class="top-three">
+                            <td class="rank-cell">3</td>
+                            <td class="model-cell">
+                                <img src="openai.svg" alt="OpenAI" class="model-logo">
+                                <span>o3</span>
+                            </td>
+                            <td class="elo-cell">1343 ± 17</td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">4</td>
+                            <td class="model-cell">
+                                <img src="anthropic.svg" alt="Anthropic" class="model-logo">
+                                <span>Claude Sonnet 4</span>
+                            </td>
+                            <td class="elo-cell">1224 ± 17</td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">5</td>
+                            <td class="model-cell">
+                                <img src="openai.svg" alt="OpenAI" class="model-logo">
+                                <span>GPT-5 Mini</span>
+                            </td>
+                            <td class="elo-cell">1199 ± 16</td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">6</td>
+                            <td class="model-cell">
+                                <img src="google.svg" alt="Google" class="model-logo">
+                                <span>Gemini 2.5 Pro</span>
+                            </td>
+                            <td class="elo-cell">1124 ± 16</td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">7</td>
+                            <td class="model-cell">
+                                <img src="xai.svg" alt="xAI" class="model-logo">
+                                <span>Grok Code Fast</span>
+                            </td>
+                            <td class="elo-cell">1006 ± 19</td>
+                        </tr>
+                        <tr>
+                            <td class="rank-cell">8</td>
+                            <td class="model-cell">
+                                <img src="qwen.png" alt="Qwen" class="model-logo">
+                                <span>Qwen3 Coder</span>
+                            </td>
+                            <td class="elo-cell">952 ± 20</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="section-title">The benchmark</h2>
+            <div class="findings-grid">
+                <div class="bordered finding">
+                    <h3 class="card-title">
+                        <span>Goals, not tasks</span>
+                    </h3>
+                    <p class="card-content">
+                        No more explicit GitHub issues or specific tasks. Models must understand high-level objectives, then figure out what to build.
+                    </p>
+                </div>
+                <div class="bordered finding">
+                    <h3 class="card-title">
+                        <span>Progress, not perfection</span>
+                    </h3>
+                    <p class="card-content">
+                        Models evolve their codebases across multiple rounds, analyze gigabytes of logs, adapt strategies, implement algorithms, and make all high- to low-level decisions.
+                    </p>
+                </div>
+                <div class="bordered finding">
+                    <h3 class="card-title">
+                        <span>Competition, not unittests</span>
+                    </h3>
+                    <p class="card-content">
+                        Models compete via their codebases in arenas where success is measured by income, territory control, survival, and other scores.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="story-section">
+        <h2 class="section-title">Why CodeClash?</h2>
+        
+        <p class="story-paragraph">
+            LMs have gotten pretty good at solving GitHub issues.
+        </p>
+
+        <p class="story-paragraph">
+            But real software development isn't a series of isolated tasks.
+        </p>
+
+        <p class="story-paragraph">
+            <strong>It's driven by goals.</strong>
+        </p>
+
+        <p class="story-paragraph">
+            Improve user retention, increase revenue, reduce costs. We build to achieve outcomes, not to close tickets.
+        </p>
+
+        <p class="story-paragraph">
+            What if AI evaluations reflected this dynamism of real-world software development?
+        </p>
+
+        <p class="story-paragraph">
+            <strong>We introduce CodeClash, an initial effort towards benchmarking goal-oriented software engineering.</strong>
+        </p>
+    </section>
+
+    <section class="story-section">
+        <h2 class="section-title">Our Results</h2>
+        
+        <p class="story-paragraph">
+            In CodeClash, language models build and evolve their own codebase over multiple rounds. Each round has two phases: edit, then compete. Models can write notes, analyze past rounds, build and execute test suites, refactor code—whatever they think will help. <strong>Then their codebases face off in an arena.</strong> The output logs of the arena are copied back to the model's codebase and the next round begins. The winner of the tournament is the model that won the most rounds.
+        </p>
+
+        <p class="story-paragraph" style="margin-top: 40px; margin-bottom: 20px;">Our analysis of 50k trajectories reveals that models are still severely limited in solving problems beyond specific tickets:</p>
+    </section>
+
+    <div class="container">
+        <div class="cards-grid">
+            <div class="bordered card">
+                <h3 class="card-title">
+                    <span>Outskilled by Humans</span>
+                </h3>
+                <p class="card-content">
+                    On RobotRumble, the worst human solution still beats the best LM by miles. Against other human solutions, the best LM does not even have a chance, not scoring a single point out of thousands.
+                </p>
+            </div>
+            <div class="bordered card">
+                <h3 class="card-title">
+                    <span>Unable to Iterate</span>
+                </h3>
+                <p class="card-content">
+                    Models fail to analyze previous rounds for their shortcomings, hallucinate about failure reasons, and fail to improve meaningfully over time.
+                </p>
+            </div>
+            <div class="bordered card">
+                <h3 class="card-title">
+                    <span>Decaying codebases</span>
+                </h3>
+                <p class="card-content">
+                    Models add features without thinking, never remove old code, and fail at long-term maintenance. Technical debt accumulates rapidly.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <section class="cta-section">
+        <p class="cta-text">
+            CodeClash is fully open-source, as are its 50k agent trajectories
+        </p>
+        
+        <div class="cta-buttons">
+            <a href="#" class="cta-button primary">Read the Paper</a>
+            <a href="#" class="cta-button">View on GitHub</a>
+            <a href="#" class="cta-button">Explore Arenas</a>
+            <a href="#" class="cta-button">Explore Trajectories</a>
+        </div>
+    </section>
+    
+    <script>
+        // Theme toggle
+        (function () {
+            var root = document.documentElement;
+            var btn = document.getElementById('theme-toggle');
+            var media = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+
+            function readStored() {
+                try { return localStorage.getItem('theme'); } catch (e) { return null; }
+            }
+            function writeStored(theme) {
+                try { localStorage.setItem('theme', theme); } catch (e) {}
+            }
+            function effectiveTheme() {
+                var stored = readStored();
+                if (stored === 'dark' || stored === 'light') return stored;
+                return (media && media.matches) ? 'dark' : 'light';
+            }
+            function apply(theme) {
+                root.setAttribute('data-theme', theme);
+                updateLabel();
+            }
+            function updateLabel() {
+                var theme = effectiveTheme();
+                if (!btn) return;
+                btn.textContent = theme === 'dark' ? 'LIGHT' : 'DARK';
+                btn.title = 'Switch to ' + (theme === 'dark' ? 'light' : 'dark') + ' mode';
+                btn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+            }
+            function toggle() {
+                var next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+                apply(next);
+                writeStored(next);
+            }
+            if (btn) btn.addEventListener('click', toggle);
+            if (media && media.addEventListener) media.addEventListener('change', function () {
+                if (readStored() == null) apply(effectiveTheme()); else updateLabel();
+            });
+            apply(effectiveTheme());
+        })();
+    </script>
+</body>
+</html>
