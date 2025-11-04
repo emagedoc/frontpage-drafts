@@ -5,345 +5,372 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CodeClash - Evaluating LMs as Goal-Driven Developers</title>
     <style>
-        :root {
-            --bg: #ffffff;
-            --fg: #0b0b0b;
-            --muted: #5a5f66;
-            --border: #e5e7eb;
-            --accent: #00cc66;
-        }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #0b0c0c;
-                --fg: #e7e9ea;
-                --muted: #9aa2a9;
-                --border: #1f2328;
-                --accent: #00ff88;
-            }
-        }
-        :root[data-theme="light"] {
-            --bg: #ffffff;
-            --fg: #0b0b0b;
-            --muted: #5a5f66;
-            --border: #e5e7eb;
-            --accent: #00cc66;
-        }
-        :root[data-theme="dark"] {
-            --bg: #0b0c0c;
-            --fg: #e7e9ea;
-            --muted: #9aa2a9;
-            --border: #1f2328;
-            --accent: #00ff88;
-        }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
+        :root[data-theme="light"] {
+            --bg: #ffffff;
+            --fg: #000000;
+            --border: #000000;
+            --gray: #666666;
+            --highlight: #000000;
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #000000;
+            --fg: #ffffff;
+            --border: #ffffff;
+            --gray: #999999;
+            --highlight: #ffffff;
+        }
+
         body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background: var(--bg);
             color: var(--fg);
             line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            font-size: 0.9rem;
+            transition: background 0.2s, color 0.2s;
         }
-        ::selection {
-            background: color-mix(in oklab, var(--accent) 30%, transparent);
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--fg);
+            color: var(--bg);
+            border: 3px solid var(--fg);
+            padding: 8px 16px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        a {
+
+        .theme-toggle:hover {
+            background: var(--bg);
             color: var(--fg);
-            text-decoration: none;
-            border-bottom: 1px solid transparent;
         }
-        a:hover {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
+
+        /* Navigation */
         nav {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 20px 24px;
-            padding-right: 120px;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            background: var(--bg);
-            z-index: 10;
-            max-width: 900px;
-            margin: 0 auto;
+            align-items: center;
+            padding: 30px 60px;
+            border-bottom: 3px solid var(--border);
         }
+
         .nav-logo {
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            font-size: 0.9rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 24px;
+            font-weight: 900;
+            text-decoration: none;
+            color: var(--fg);
+            letter-spacing: -1px;
         }
+
         .nav-links {
-            list-style: none;
             display: flex;
-            gap: 20px;
-            font-size: 0.85rem;
+            list-style: none;
+            gap: 40px;
         }
+
         .nav-links a {
-            opacity: 0.9;
+            text-decoration: none;
+            color: var(--fg);
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: opacity 0.2s;
         }
+
         .nav-links a:hover {
-            opacity: 1;
+            opacity: 0.6;
         }
+
+        /* Hero Section */
         .hero {
-            padding: 8px 20px 18px;
+            padding: 100px 60px 80px;
+            border-bottom: 3px solid var(--border);
         }
+
         .hero-header {
             max-width: 1000px;
             margin: 0 auto;
             text-align: center;
         }
+
         .logo {
-            width: 160px;
-            height: 160px;
-            margin-bottom: -30px;
-            animation: logoFlip 1.7s ease-in-out forwards;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 30px;
+            filter: var(--bg) == #000000 ? invert(1) : invert(0);
         }
-        @keyframes logoFlip {
-            0%, 58.8% {
-                transform: rotateY(0deg);
-            }
-            100% {
-                transform: rotateY(180deg);
-            }
-        }
+
         .title {
-            font-size: clamp(2.4rem, 6vw, 4rem);
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            margin-bottom: 8px;
-            color: var(--fg);
-        }
-        .title-word {
-            display: inline-block;
-        }
-        .title-code {
-            animation: codeMove 1.7s ease-in-out forwards;
-        }
-        .title-clash {
-            animation: clashMove 1.7s ease-in-out forwards;
-        }
-        @keyframes codeMove {
-            0%, 58.8% {
-                transform: translateX(0);
-            }
-            70.6% {
-                transform: translateX(-15px);
-            }
-            79.4% {
-                transform: translateX(8px);
-            }
-            88.2% {
-                transform: translateX(-3px);
-            }
-            100% {
-                transform: translateX(0);
-            }
-        }
-        @keyframes clashMove {
-            0%, 58.8% {
-                transform: translateX(0);
-            }
-            70.6% {
-                transform: translateX(15px);
-            }
-            79.4% {
-                transform: translateX(-8px);
-            }
-            88.2% {
-                transform: translateX(3px);
-            }
-            100% {
-                transform: translateX(0);
-            }
-        }
-        .subtitle {
-            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-            margin-top: -24px;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0 12px;
-        }
-        .section-title {
-            text-align: center;
-            font-weight: 800;
-            font-size: 1.3rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 72px;
+            font-weight: 900;
             margin-bottom: 20px;
+            letter-spacing: -2px;
         }
-        .bordered {
-            background: transparent;
-            border: 1px solid var(--border);
-            transition: border-color 0.15s ease;
-        }
-        .bordered:hover {
-            border-color: var(--accent);
-        }
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin: 16px 0;
-        }
-        .card {
-            padding: 28px 24px;
-        }
-        .card-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
+
+        .subtitle {
+            font-size: 28px;
             font-weight: 700;
-            margin-bottom: 10px;
-            white-space: nowrap;
+            color: var(--gray);
+            letter-spacing: -0.5px;
         }
-        .icon {
-            width: 20px;
-            height: 20px;
-            color: var(--accent);
-            flex-shrink: 0;
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 60px;
         }
-        .card-content {
-            font-size: 0.85rem;
-            color: var(--muted);
-        }
+
         .combined-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin: 18px auto 40px;
+            gap: 80px;
+            border-bottom: 3px solid var(--border);
         }
+
+        /* Section Titles */
+        .section-title {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        /* Bordered Elements */
+        .bordered {
+            border: 3px solid var(--border);
+            padding: 20px;
+        }
+
+        /* Leaderboard Table */
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.85rem;
         }
-        thead th {
+
+        thead {
+            border-bottom: 3px solid var(--border);
+        }
+
+        th {
             text-align: left;
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--border);
-            color: var(--muted);
-            letter-spacing: 0.06em;
+            padding: 12px 8px;
+            font-weight: 900;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        tbody td {
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--border);
+
+        tbody tr {
+            border-bottom: 2px solid var(--border);
         }
-        tbody tr:hover {
-            background: color-mix(in oklab, var(--accent) 6%, var(--bg));
+
+        tbody tr:last-child {
+            border-bottom: none;
         }
-        .rank-cell { width: 64px; font-weight: 700; }
-        .model-cell { 
+
+        tbody tr.top-three {
+            background: var(--fg);
+            color: var(--bg);
+        }
+
+        td {
+            padding: 16px 8px;
+            font-weight: 600;
+        }
+
+        .rank-cell {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 18px;
+            font-weight: 900;
+            width: 60px;
+        }
+
+        .model-cell {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
+
         .model-logo {
             width: 20px;
             height: 20px;
+        }
+
+        .elo-cell {
+            text-align: right;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* Findings Grid */
+        .findings-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .finding {
+            padding: 24px !important;
+        }
+
+        /* Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .card {
+            padding: 30px !important;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 900;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+
+        .icon {
+            width: 28px;
+            height: 28px;
             flex-shrink: 0;
         }
-        .elo-cell { text-align: right; color: var(--muted); }
-        .findings-grid {
-            display: grid;
-            gap: 12px;
+
+        .card-content {
+            color: var(--gray);
+            font-weight: 500;
+            line-height: 1.6;
         }
-        .finding {
-            padding: 24px 20px;
-        }
+
+        /* Story Section */
         .story-section {
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 0 12px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 80px 60px;
+            border-bottom: 3px solid var(--border);
         }
-        .story-hook {
-            font-weight: 800;
-            border-left: 3px solid var(--accent);
-            padding: 0 0 0 12px;
-            margin-bottom: 16px;
-            font-size: 0.9rem;
-        }
-        .story-paragraph {
-            margin-bottom: 16px;
-            font-size: 0.9rem;
-        }
-        .big-number {
-            font-size: clamp(2rem, 5vw, 3rem);
-            font-weight: 900;
-            color: var(--accent);
-            line-height: 1;
-            margin-bottom: 8px;
-        }
-        .cta-section {
-            max-width: 760px;
-            margin: 40px auto 80px;
-            padding: 0 12px;
+
+        .story-section .section-title {
             text-align: center;
+            margin-bottom: 50px;
         }
+
+        .story-paragraph {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .story-hook {
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 1.7;
+            color: var(--gray);
+        }
+
+        .story-hook strong {
+            color: var(--fg);
+            font-weight: 900;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 100px 60px;
+        }
+
         .cta-text {
-            color: var(--muted);
-            margin-bottom: 16px;
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 40px;
+            letter-spacing: -0.5px;
         }
+
         .cta-buttons {
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 20px;
             justify-content: center;
+            flex-wrap: wrap;
         }
+
         .cta-button {
             display: inline-block;
-            padding: 10px 18px;
-            border: 1px solid var(--border);
+            padding: 16px 32px;
+            border: 3px solid var(--border);
+            background: var(--bg);
             color: var(--fg);
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 14px;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            font-weight: 800;
-            background: transparent;
-            transition: all 0.15s ease;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
         }
+
         .cta-button:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: color-mix(in oklab, var(--accent) 6%, transparent);
-        }
-        .cta-button.primary {
-            border-color: var(--accent);
+            background: var(--fg);
             color: var(--bg);
-            background: var(--accent);
         }
+
+        .cta-button.primary {
+            background: var(--fg);
+            color: var(--bg);
+        }
+
         .cta-button.primary:hover {
-            background: color-mix(in oklab, var(--accent) 85%, var(--fg));
-        }
-        .theme-toggle {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            padding: 8px 14px;
-            border: 1px solid var(--border);
-            background: transparent;
+            background: var(--bg);
             color: var(--fg);
-            font-weight: 800;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            cursor: pointer;
-            z-index: 20;
         }
-        .theme-toggle:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: color-mix(in oklab, var(--accent) 6%, transparent);
-        }
-        @media (max-width: 1024px) {
-            .combined-section { grid-template-columns: 1fr; }
-            .cards-grid { grid-template-columns: 1fr; }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .combined-section {
+                grid-template-columns: 1fr;
+                gap: 60px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .title {
+                font-size: 48px;
+            }
+
+            .subtitle {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
@@ -364,7 +391,7 @@
     <section class="hero">
         <div class="hero-header">
             <img src="clash.svg" alt="CodeClash Logo" class="logo">
-            <h1 class="title"><span class="title-word title-code">Code</span><span class="title-word title-clash">Clash</span></h1>
+            <h1 class="title">CodeClash</h1>
             <p class="subtitle">Benchmarking Goal-Oriented Software Engineering</p>
         </div>
     </section>
@@ -456,6 +483,11 @@
             <div class="findings-grid">
                 <div class="bordered finding">
                     <h3 class="card-title">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="12" r="6"></circle>
+                            <circle cx="12" cy="12" r="2"></circle>
+                        </svg>
                         <span>Goals, not tasks</span>
                     </h3>
                     <p class="card-content">
@@ -464,6 +496,10 @@
                 </div>
                 <div class="bordered finding">
                     <h3 class="card-title">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                        </svg>
                         <span>Progress, not perfection</span>
                     </h3>
                     <p class="card-content">
@@ -472,6 +508,11 @@
                 </div>
                 <div class="bordered finding">
                     <h3 class="card-title">
+                        <svg class="icon" viewBox="0 0 290.226 290.226" fill="currentColor">
+                            <path d="M63.951,243.575c-1.945-3.578-4.401-6.907-7.363-9.869c-3.106-3.102-6.626-5.633-10.4-7.63 c-4.51-2.387-0.945-7.5-0.945-7.5c4.616-7.023,8.825-14.079,12.305-20.226l-23.363-23.344H11.504c-4.362,0-7.898-3.539-7.898-7.902 c0-4.361,3.536-7.9,7.898-7.9h25.947c2.1,0,4.107,0.832,5.588,2.312l85.379,85.291c1.483,1.483,2.315,3.495,2.315,5.589v26.073 c0,4.365-3.537,7.897-7.9,7.897c-4.367,0-7.904-3.531-7.904-7.897v-22.798l-23.27-23.24c-6.281,3.707-13.582,8.252-20.816,13.25 C70.842,245.679,66.698,248.629,63.951,243.575z"></path>
+                            <path d="M26.61,237.102c-7.106,0-13.784,2.764-18.812,7.784c-5.019,5.015-7.782,11.686-7.782,18.778 c0,7.097,2.764,13.762,7.782,18.776c5.027,5.016,11.706,7.783,18.812,7.785c7.102,0,13.781-2.77,18.804-7.785 c5.023-5.015,7.79-11.682,7.79-18.776c0-7.093-2.768-13.764-7.79-18.778C40.392,239.866,33.712,237.102,26.61,237.102z"></path>
+                            <path d="M100.985,182.318c-3.502,3.499-9.232,3.499-12.734,0.001l-8.81-8.801c-3.502-3.498-3.502-9.223,0-12.721L229.832,10.564 c3.502-3.498,10.401-6.727,15.33-7.175l36.862-3.352c4.93-0.448,8.596,3.218,8.148,8.148l-3.346,36.791 c-0.448,4.93-3.68,11.825-7.182,15.324l-150.4,150.251c-3.502,3.498-9.232,3.498-12.734,0l-8.822-8.813 c-3.502-3.498-3.502-9.223,0-12.722L233.608,63.213c1.854-1.848,1.856-4.852,0.003-6.702c-1.848-1.853-4.853-1.853-6.709-0.002 L100.985,182.318z"></path>
+                        </svg>
                         <span>Competition, not unittests</span>
                     </h3>
                     <p class="card-content">
@@ -511,11 +552,12 @@
     </section>
 
     <section class="story-section">
-        <h2 class="section-title">Our Results</h2>
+        <h2 class="section-title">Our results</h2>
         
-        <p class="story-paragraph">
-            In CodeClash, language models build and evolve their own codebase over multiple rounds. Each round has two phases: edit, then compete. Models can write notes, analyze past rounds, build and execute test suites, refactor code—whatever they think will help. <strong>Then their codebases face off in an arena.</strong> The output logs of the arena are copied back to the model's codebase and the next round begins. The winner of the tournament is the model that won the most rounds.
-        </p>
+        <div class="story-hook">
+            In CodeClash, language models build and evolve their own codebase over multiple rounds.
+            Each round has two phases: edit, then compete. Models can write notes, analyze past rounds, build and execute test suites, refactor code—whatever they think will help. <strong>Then their codebases face off in an arena.</strong> The output logs of the arena are copied back to the model's codebase and the next round begins. The winner of the tournament is the model that won the most rounds.
+        </div>
 
         <p class="story-paragraph" style="margin-top: 40px; margin-bottom: 20px;">Our analysis of 50k trajectories reveals that models are still severely limited in solving problems beyond specific tickets:</p>
     </section>
@@ -524,6 +566,10 @@
         <div class="cards-grid">
             <div class="bordered card">
                 <h3 class="card-title">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
                     <span>Outskilled by Humans</span>
                 </h3>
                 <p class="card-content">
@@ -532,6 +578,9 @@
             </div>
             <div class="bordered card">
                 <h3 class="card-title">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+                    </svg>
                     <span>Unable to Iterate</span>
                 </h3>
                 <p class="card-content">
@@ -540,6 +589,11 @@
             </div>
             <div class="bordered card">
                 <h3 class="card-title">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
                     <span>Decaying codebases</span>
                 </h3>
                 <p class="card-content">
