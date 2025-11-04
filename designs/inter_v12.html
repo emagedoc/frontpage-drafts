@@ -587,6 +587,20 @@
     </section>
     
     <script>
+        // Randomly reverse logo animation direction
+        (function () {
+            var logoLeft = document.querySelector('.logo-left');
+            var logoRight = document.querySelector('.logo-right');
+            
+            if (Math.random() < 0.5 && logoLeft && logoRight) {
+                // Swap the animation classes
+                logoLeft.classList.remove('logo-left');
+                logoLeft.classList.add('logo-right');
+                logoRight.classList.remove('logo-right');
+                logoRight.classList.add('logo-left');
+            }
+        })();
+
         // Theme toggle
         (function () {
             var root = document.documentElement;
